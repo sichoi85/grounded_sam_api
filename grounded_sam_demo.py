@@ -187,6 +187,15 @@ if __name__ == "__main__":
     boxes_filt, pred_phrases = get_grounding_output(
         model, image, text_prompt, box_threshold, text_threshold, device=device
     )
+    
+    print(boxes_filt)
+    print(type(boxes_filt))
+    try:
+        print(boxes_filt.shape)
+    except:
+        print("boxes_filt doesn't have .shape")
+    print(pred_phrases)
+    print(type(pred_phrases))
 
     # initialize SAM
     if use_sam_hq:
@@ -198,7 +207,10 @@ if __name__ == "__main__":
     predictor.set_image(image)
 
     size = image_pil.size
+    
     H, W = size[1], size[0]
+    print("height {}".format(H))
+    print("width {}".format(W))
     for i in range(boxes_filt.size(0)):
         boxes_filt[i] = boxes_filt[i] * torch.Tensor([W, H, W, H])
         boxes_filt[i][:2] -= boxes_filt[i][2:] / 2
@@ -213,6 +225,10 @@ if __name__ == "__main__":
         boxes = transformed_boxes.to(device),
         multimask_output = False,
     )
+    
+    print(masks)
+    
+    print(masks.shape)
     
     # draw output image
     plt.figure(figsize=(10, 10))
