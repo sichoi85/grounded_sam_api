@@ -2,6 +2,9 @@ from fastapi import FastAPI, File, UploadFile
 from grounded_sam_wrapper import Grounded_Sam_wrapper
 import os
 from fastapi.responses import JSONResponse
+import numpy as np 
+import time
+
 
 app = FastAPI()
 
@@ -30,13 +33,28 @@ def read_root():
 
 @app.post("/uploadImage/")
 async def create_upload_file(file: UploadFile = File(...)):
+    start = time.time()
+    
     try:
         file_path = os.path.join(parent_directory, "outputs", file.filename)
         with open(file_path, "wb") as image_file:
             image_file.write(file.file.read())
         masks, pred = grounded_sam_wrapper.run(file_path, "bed")
-        masks = masks.cpu().numpy().tolist()
-        return JSONResponse(content = {"message": {"masks": "masks"}}, status_code = 200)
+        end = time.time()
+        print(end - start)
+        masks = masks.cpu().numpy()
+        masks = np.squeeze(masks, (0,1))
+        masks = np.argwhere(masks & ~np.roll(masks, 1, axis=(0, 1)))
+        random_samples = np.random.choice(masks.shape[0], size=100, replace=False)
+        masks = masks[random_samples]
+        masks = masks.tolist()
+        end2 = time.time()
+        print(end2 - end)
+        
+
+        
+        
+        return JSONResponse(content = {"message": {"masks": masks}}, status_code = 200)
             
     except Exception as e:
         return JSONResponse(content={"message": "Error uploading image", "error": str(e)}, status_code=500)

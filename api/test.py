@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from grounded_sam_wrapper import Grounded_Sam_wrapper
 import os
 from fastapi.responses import JSONResponse
+import numpy as np
 
 app = FastAPI()
 
@@ -25,5 +26,9 @@ grounded_sam_wrapper = Grounded_Sam_wrapper(
 grounded_sam_wrapper.load()
 
 x,y = grounded_sam_wrapper.run("../outputs/room_furnished.png", "bed.")
-print(x.cpu().numpy().tolist())
+x = x.cpu().numpy()
+x = np.squeeze(x, (0,1))
+x = np.argwhere(x & ~np.roll(x, 1, axis=(0, 1)))
+print(x.shape)
+
 print(y)
