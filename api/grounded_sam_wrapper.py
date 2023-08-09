@@ -86,11 +86,24 @@ class Grounded_Sam_wrapper:
         boxes_filt = boxes_filt[filt_mask]  # num_filt, 4
         logits_filt.shape[0]
         
-    def load(self,):
+        # get phrase
+        tokenlizer = model.tokenizer
+        tokenized = tokenlizer(caption)
+        # build pred
+        pred_phrases = []
+        for logit, box in zip(logits_filt, boxes_filt):
+            pred_phrase = get_phrases_from_posmap(logit > text_threshold, tokenized, tokenlizer)
+            if with_logits:
+                pred_phrases.append(pred_phrase + f"({str(logit.max().item())[:4]})")
+            else:
+                pred_phrases.append(pred_phrase)
+
+        return boxes_filt, pred_phrases
+        
+    def load(self):
          # make dir
         os.makedirs(self.output_dir, exist_ok=True)
-        # load image
-        image_pil, image = self.load_image(self.image_path)
+        
         # load model
         self.model = self.load_model(self.config_file, self.grounded_checkpoint, device=self.device)
         
@@ -102,13 +115,16 @@ class Grounded_Sam_wrapper:
         
 
     def run(self, image_path, text_prompt):
+                
+        # load image
+        image_pil, image = self.load_image(image_path)
+        
+        image_pil.save(os.path.join(self.output_dir, "raw_image.jpg"))
+
         # run grounding dino model
         boxes_filt, pred_phrases = self.get_grounding_output(
             self.model, image, text_prompt, self.box_threshold, self.text_threshold, device=self.device
         )
-        
-        # load image
-        image_pil, image = self.load_image(image_path)
         
         image = cv2.imread(image_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

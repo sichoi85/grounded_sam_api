@@ -1,13 +1,44 @@
-from fastapi import FastAPI
-#import yourclass
+from fastapi import FastAPI, File, UploadFile
+from grounded_sam_wrapper import Grounded_Sam_wrapper
+import os
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
 # Load the ML model when the server starts
-# model = yourclass.load()
+
+cwd = os.path.dirname(os.path.abspath(__file__))
+parent_directory = os.path.dirname(cwd)
+
+grounded_sam_wrapper = Grounded_Sam_wrapper(
+    config = os.path.join(parent_directory,"GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"),
+    grounded_checkpoint = "groundingdino_swint_ogc.pth", 
+    sam_checkpoint = "sam_vit_h_4b8939.pth", 
+    sam_hq_checkpoint = None, 
+    use_sam_hq = None, 
+    output_dir = "../outputs", 
+    box_threshold = 0.3, 
+    text_threshold = 0.3, 
+    device = "cuda" 
+    )
+
+grounded_sam_wrapper.load()
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
-@app.get()
+@app.post("/uploadImage/")
+async def create_upload_file(file: UploadFile = File(...)):
+    try:
+        file_path = os.path.join(parent_directory, "outputs", file.filename)
+        with open(file_path, "wb") as image_file:
+            image_file.write(file.file.read())
+        masks, pred = grounded_sam_wrapper.run(file_path, "bed")
+        masks = masks.cpu().numpy().tolist()
+        return JSONResponse(content = {"message": {"masks": "masks"}}, status_code = 200)
+            
+    except Exception as e:
+        return JSONResponse(content={"message": "Error uploading image", "error": str(e)}, status_code=500)
+    
+    
