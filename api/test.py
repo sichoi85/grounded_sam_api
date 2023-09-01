@@ -25,7 +25,7 @@ grounded_sam_wrapper = Grounded_Sam_wrapper(
 
 grounded_sam_wrapper.load()
 
-x,y = grounded_sam_wrapper.run(os.path.join(parent_directory,"outputs/a room.png"), "bed.")
+x,y = grounded_sam_wrapper.run(os.path.join(cwd,"inputs/emptyroomtouse.jpg"), "bed.")
 x = x.cpu().numpy()
 x = np.squeeze(x, (0,1))
 x = np.argwhere(x & ~np.roll(x, 1, axis=(0, 1)))
