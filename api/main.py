@@ -49,10 +49,7 @@ async def create_upload_file(file: UploadFile = File(...)):
         masks = masks[random_samples]
         masks = masks.tolist()
         end2 = time.time()
-        print(end2 - end)
-        
-
-        
+        print(end2 - end) 
         
         return JSONResponse(content = {"message": {"masks": masks}}, status_code = 200)
             

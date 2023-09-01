@@ -13,10 +13,10 @@ parent_directory = os.path.dirname(cwd)
 
 grounded_sam_wrapper = Grounded_Sam_wrapper(
     config = os.path.join(parent_directory,"GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"),
-    grounded_checkpoint = "groundingdino_swint_ogc.pth", 
-    sam_checkpoint = "sam_vit_h_4b8939.pth", 
-    sam_hq_checkpoint = "sam_vit_h_4b8939.pth", 
-    use_sam_hq = "sam_vit_h_4b8939.pth", 
+    grounded_checkpoint = os.path.join(parent_directory,"groundingdino_swint_ogc.pth"), 
+    sam_checkpoint = os.path.join(parent_directory,"sam_vit_h_4b8939.pth"), 
+    sam_hq_checkpoint = os.path.join(parent_directory,"sam_vit_h_4b8939.pth"), 
+    use_sam_hq = os.path.join(parent_directory,"sam_vit_h_4b8939.pth"), 
     output_dir = "../outputs", 
     box_threshold = 0.3, 
     text_threshold = 0.3, 
@@ -25,7 +25,7 @@ grounded_sam_wrapper = Grounded_Sam_wrapper(
 
 grounded_sam_wrapper.load()
 
-x,y = grounded_sam_wrapper.run("../outputs/room_furnished.png", "bed.")
+x,y = grounded_sam_wrapper.run(os.path.join(parent_directory,"outputs/a room.png"), "bed.")
 x = x.cpu().numpy()
 x = np.squeeze(x, (0,1))
 x = np.argwhere(x & ~np.roll(x, 1, axis=(0, 1)))
