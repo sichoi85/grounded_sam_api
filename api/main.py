@@ -15,8 +15,8 @@ parent_directory = os.path.dirname(cwd)
 
 grounded_sam_wrapper = Grounded_Sam_wrapper(
     config = os.path.join(parent_directory,"GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"),
-    grounded_checkpoint = "groundingdino_swint_ogc.pth", 
-    sam_checkpoint = "sam_vit_h_4b8939.pth", 
+    grounded_checkpoint = os.path.join(parent_directory,"groundingdino_swint_ogc.pth"), 
+    sam_checkpoint = os.path.join(parent_directory,"sam_vit_h_4b8939.pth"), 
     sam_hq_checkpoint = None, 
     use_sam_hq = None, 
     output_dir = "../outputs", 

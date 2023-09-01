@@ -1,14 +1,25 @@
 # the base image
-FROM friday0013/grounded-sam
+FROM friday0013/grounded-sam:v0
 
 # Set environment variables (optional)
 ENV APP_PORT=8080
 
-# Create a directory to work in
-WORKDIR /app
+# # Create a non-root user
+RUN useradd -ms /bin/bash myuser
 
+# # Switch to the non-root user
+USER myuser
+
+# # Set the working directory
+WORKDIR /home/myuser
 # Clone the grounded_sam_api repository
-RUN git clone https://github.com/sichoi85/grounded_sam_api .
+RUN git clone https://github.com/sichoi85/grounded_sam_api 
+
+# # Set the working directory
+WORKDIR /home/myuser/grounded_sam_api
+
+ENV PYTHONPATH=$PYTHONPATH:/home/myuser/grounded_sam_api
+
 
 # Download the required model files
 RUN wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
@@ -19,6 +30,9 @@ RUN pip install -r requirements.txt
 
 # Expose the port your FastAPI app will run on
 EXPOSE $APP_PORT
+
+WORKDIR /home/myuser/grounded_sam_api/api
+
 
 # Start the FastAPI app with UVicorn
 CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8080"]

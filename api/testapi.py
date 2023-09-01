@@ -1,7 +1,7 @@
 import requests
 
 # Set the URL of your endpoint
-url = "http://127.0.0.1:8000/uploadImage/"
+url = "http://0.0.0.0:8080/uploadImage/"
 import os
 # Specify the file you want to upload
 cwd = os.path.dirname(os.path.abspath(__file__))
