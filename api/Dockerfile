@@ -7,6 +7,11 @@ ENV APP_PORT=8080
 # # Create a non-root user
 RUN useradd -ms /bin/bash myuser
 
+# Set environment variables for AWS CLI
+ENV AWS_ACCESS_KEY_ID=AKIATPTSUAYTVQT5OWUW
+ENV AWS_SECRET_ACCESS_KEY=secret
+ENV AWS_DEFAULT_REGION=us-west-1
+
 # # Switch to the non-root user
 USER myuser
 
@@ -20,6 +25,14 @@ WORKDIR /home/myuser/grounded_sam_api
 
 ENV PYTHONPATH=$PYTHONPATH:/home/myuser/grounded_sam_api
 
+# Install AWS CLI (if not already installed)
+RUN apt-get update && apt-get install -y awscli
+
+# Create the destination directory if it doesn't exist
+RUN mkdir -p /home/myuser/.cache/huggingface/hub/models--bert-base-uncased/
+
+# Download everything from S3
+RUN aws s3 cp s3://grounded-sam /home/myuser/.cache/huggingface/hub/models--bert-base-uncased/ --recursive
 
 # Download the required model files
 RUN wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
@@ -35,4 +48,4 @@ WORKDIR /home/myuser/grounded_sam_api/api
 
 
 # Start the FastAPI app with UVicorn
-CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "main:app", "--reload", "--port", "8080"]
