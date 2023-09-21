@@ -1,6 +1,10 @@
 # the base image
 FROM friday0013/grounded-sam:v0
 
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_DEFAULT_REGION
+
 # Set environment variables (optional)
 ENV APP_PORT=8080
 
@@ -11,6 +15,7 @@ RUN useradd -ms /bin/bash myuser
 ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 ENV AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+
 
 # # Switch to the non-root user
 USER myuser
@@ -26,15 +31,13 @@ WORKDIR /home/myuser/grounded_sam_api
 ENV PYTHONPATH=$PYTHONPATH:/home/myuser/grounded_sam_api
 
 # Install AWS CLI (if not already installed)
-# Install AWS CLI (if not already installed)
 # Install AWS CLI (if not already installed) with elevated privileges
 USER root
-# Set the frontend to noninteractive mode to prevent prompts
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y awscli
+
 # # Switch to the non-root user
 USER myuser
-
 # Create the destination directory if it doesn't exist
 RUN mkdir -p /home/myuser/.cache/huggingface/hub/models--bert-base-uncased/
 
