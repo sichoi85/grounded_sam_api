@@ -26,7 +26,14 @@ WORKDIR /home/myuser/grounded_sam_api
 ENV PYTHONPATH=$PYTHONPATH:/home/myuser/grounded_sam_api
 
 # Install AWS CLI (if not already installed)
+# Install AWS CLI (if not already installed)
+# Install AWS CLI (if not already installed) with elevated privileges
+USER root
+# Set the frontend to noninteractive mode to prevent prompts
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y awscli
+# # Switch to the non-root user
+USER myuser
 
 # Create the destination directory if it doesn't exist
 RUN mkdir -p /home/myuser/.cache/huggingface/hub/models--bert-base-uncased/
